@@ -11,28 +11,28 @@
 #define YELLOW CRGB(255, 255, 0)
 #define RED CRGB(255, 0, 0)
 
-unsigned long startdistance;   // distance from sensor to begin scan as car pulls in(CENTIMETERS)
-unsigned long stopdistance;    // parking position from sensor (CENTIMETERS)
-unsigned long incrementdistance = ((startdistance - stopdistance) / NUMBER_OF_PIXEL_LEDS);
+unsigned long _startDistance;   // distance from sensor to begin scan as car pulls in(CENTIMETERS)
+unsigned long _stopDistance;    // parking position from sensor (CENTIMETERS)
+unsigned long _incrementalDistance = ((_startDistance - _stopDistance) / NUMBER_OF_PIXEL_LEDS);
 
-CRGB leds[NUMBER_OF_PIXEL_LEDS];
+CRGB _pixelLeds[NUMBER_OF_PIXEL_LEDS];
 
 void InitializePixelLeds(unsigned long startDistance, unsigned long stopDistance)
 {
-    startdistance = startDistance;
-    stopdistance = stopDistance;
-    FastLED.addLeds<WS2812, PIXEL_LEDS_PIN, GRB>(leds, NUMBER_OF_PIXEL_LEDS); // set up the LED strip
+    _startDistance = startDistance;
+    _stopDistance = stopDistance;
+    FastLED.addLeds<WS2812, PIXEL_LEDS_PIN, GRB>(_pixelLeds, NUMBER_OF_PIXEL_LEDS); // set up the LED strip
     SetLedColors(NUMBER_OF_PIXEL_LEDS, OFF);                                  // set all LEDS off
 }
 
 void SetPixelLeds(unsigned long distance)
 {
-    if (distance >= startdistance)
+    if (distance >= _startDistance)
     {
         // Greater than start distance -- set all LEDS off
         SetLedColors(NUMBER_OF_PIXEL_LEDS, OFF);
     }
-    if (distance <= stopdistance)
+    if (distance <= _stopDistance)
     {
         // Less than or equal to the stop distance -- set all LEDS to red
         SetLedColors(NUMBER_OF_PIXEL_LEDS, RED);
@@ -43,7 +43,7 @@ void SetPixelLeds(unsigned long distance)
         // Depending on where the distance is, set LED colors accordingly.
         for (int i = 1; i <= NUMBER_OF_PIXEL_LEDS; i++)
         {
-            if (distance <= stopdistance + (incrementdistance * i))
+            if (distance <= _stopDistance + (_incrementalDistance * i))
             {
                 SetLedColors(i, GREEN);
                 break;
@@ -57,12 +57,12 @@ void SetLedColors(int lastLed, CRGB color)
     // Set the specificed number of lEDs to the specified color
     for (int i = 0; i < lastLed; i++)
     {
-        leds[i] = color;
+        _pixelLeds[i] = color;
     }
     // Turn off the remaining LEDs, if any
     for (int i = lastLed; i < NUMBER_OF_PIXEL_LEDS; i++)
     {
-        leds[i] = OFF;
+        _pixelLeds[i] = OFF;
     }
     FastLED.show();
     delay(50);
@@ -70,6 +70,6 @@ void SetLedColors(int lastLed, CRGB color)
 
 void ResetDistances(unsigned long startDistance, unsigned long stopDistance)
 {
-    startdistance = startDistance;
-    stopdistance = stopDistance;
+    _startDistance = startDistance;
+    _stopDistance = stopDistance;
 }

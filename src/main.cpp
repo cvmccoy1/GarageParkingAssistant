@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <util/atomic.h>
 
-#include "sonic.h"
+#include "sonar.h"
 #include "sensor.h"
 #include "display.h"
 #include "pixels.h"
@@ -12,7 +12,7 @@
 #define CALCULATE_SPEED_OF_SOUND_INTERVAL 60 // One Minute (60 Seconds)
 
 // defining variables
-volatile float speedOfSound;
+volatile float _speedOfSound;
 
 // Forward referenced functions
 void InitializeOneSecondTimerInterrupt();
@@ -22,7 +22,7 @@ void setup()
   Serial.begin(9600);                 // start the serial communication
   pinMode(HEARTBEAT_LED_PIN, OUTPUT); // set up the Heartbeat LED
   InitializeTemperatureAndHumidityDevice();
-  speedOfSound = CalculateSpeedOfSound(); // Calculate the initial speedOfSound
+  _speedOfSound = CalculateSpeedOfSound(); // Calculate the initial speedOfSound
   InitializePixelLeds(MAX_DISTANCE, 115);
   InitializeDisplay();
   InitializeOneSecondTimerInterrupt();
@@ -30,12 +30,14 @@ void setup()
 
 void loop()
 {
-  float sos;
+  // Since the Speed Of Sound variable is updated during an interrupt,
+  // we use an atomic operation to get a local copy of the variable.
+  float speedOfSound;
   ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
   {
-    sos = speedOfSound;
+    speedOfSound = _speedOfSound;
   }
-  unsigned long distance = CalculateSonicDistance(sos);
+  unsigned long distance = CalculateSonicDistance(speedOfSound);
   // Prints the distance on the Display
   PrintfLine(2, PSTR("Distance: %3dcm"), distance);
 
@@ -69,9 +71,11 @@ ISR(TIMER1_COMPA_vect)
   if (--calculateSpeedOfSoundCounter <= 0)
   {
     float sos = CalculateSpeedOfSound();
+    // Since the Speed of Sound variable is being updated in this interrupt,
+    // we protect the update in an atomic operation.
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
     {
-      speedOfSound = sos;
+      _speedOfSound = sos;
     }
     calculateSpeedOfSoundCounter = CALCULATE_SPEED_OF_SOUND_INTERVAL;
   }

@@ -4,6 +4,7 @@
 #include <DHT_U.h>
 
 #include "sensor.h"
+#include "display.h"
 
 #define DHT_PIN 2     // D0
 #define DHTTYPE DHT22 // DHT 22  (AM2302)
@@ -11,15 +12,15 @@
 #define SPEED_OF_SOUND 343.0 // in m/s
 
 // create an instance of the temperature/humidity sensor
-DHT_Unified dht(DHT_PIN, DHTTYPE);
+DHT_Unified _sensor(DHT_PIN, DHTTYPE);
 
 void InitializeTemperatureAndHumidityDevice()
 {
-    dht.begin(); // start the temperature/humidity sensor
+    _sensor.begin(); // start the temperature/humidity sensor
     Serial.println(F("DHT22 Unified Sensor Setup"));
     // Print temperature sensor details.
     sensor_t sensor;
-    dht.temperature().getSensor(&sensor);
+    _sensor.temperature().getSensor(&sensor);
     Serial.println(F("------------------------------------"));
     Serial.println(F("Temperature Sensor"));
     Serial.print(F("Sensor Type: "));
@@ -39,7 +40,7 @@ void InitializeTemperatureAndHumidityDevice()
     Serial.println(F("°C"));
     Serial.println(F("------------------------------------"));
     // Print humidity sensor details.
-    dht.humidity().getSensor(&sensor);
+    _sensor.humidity().getSensor(&sensor);
     Serial.println(F("Humidity Sensor"));
     Serial.print(F("Sensor Type: "));
     Serial.println(sensor.name);
@@ -72,7 +73,7 @@ float CalculateSpeedOfSound()
 
     bool isDhtWorking = true;
 
-    dht.temperature().getEvent(&event);
+    _sensor.temperature().getEvent(&event);
     if (isnan(event.temperature))
     {
         Serial.println(F("Error reading temperature!"));
@@ -81,12 +82,13 @@ float CalculateSpeedOfSound()
     else
     {
         temperature = event.temperature;
+        PrintfLine(0, PSTR("Temperature: %3d\337C"), temperature);
         Serial.print(F("Temperature: "));
         Serial.print(temperature);
         Serial.println(F("°C"));
     }
     // Get humidity event and print its value.
-    dht.humidity().getEvent(&event);
+    _sensor.humidity().getEvent(&event);
     if (isnan(event.relative_humidity))
     {
         Serial.println(F("Error reading humidity!"));
@@ -95,6 +97,7 @@ float CalculateSpeedOfSound()
     else
     {
         humidity = event.relative_humidity;
+        PrintfLine(1, PSTR("Humidity: %3d%%"), humidity);
         Serial.print(F("Humidity: "));
         Serial.print(humidity);
         Serial.println(F("%"));
