@@ -9,7 +9,7 @@
 // defining the pins
 #define HEARTBEAT_LED_PIN LED_BUILTIN // D10 (Pin 13)
 
-#define CALCULATE_SPEED_OF_SOUND_INTERVAL 60 // One Minute (60 Seconds)
+#define CALCULATE_SPEED_OF_SOUND_INTERVAL 5 // One Minute (60 Seconds)
 
 // defining variables
 volatile float _speedOfSound;
@@ -20,12 +20,12 @@ void InitializeOneSecondTimerInterrupt();
 void setup()
 {
   Serial.begin(9600);                 // start the serial communication
-  pinMode(HEARTBEAT_LED_PIN, OUTPUT); // set up the Heartbeat LED
+  InitializeDisplay();
   InitializeTemperatureAndHumidityDevice();
   _speedOfSound = CalculateSpeedOfSound(); // Calculate the initial speedOfSound
   InitializePixelLeds(MAX_DISTANCE, 115);
-  InitializeDisplay();
   InitializeOneSecondTimerInterrupt();
+  PrintLine(ROW1, ">PARKING--ASSISTANT<");
 }
 
 void loop()
@@ -38,14 +38,20 @@ void loop()
     speedOfSound = _speedOfSound;
   }
   unsigned long distance = CalculateSonicDistance(speedOfSound);
+  Serial.print(F("Distance: "));
+  Serial.print(distance);
+  Serial.println(F("cm"));
   // Prints the distance on the Display
-  PrintfLine(2, PSTR("Distance: %3dcm"), distance);
-
+  int distanceInFeet = (int)((double)distance / 0.3048 + 0.5);
+  int x = distanceInFeet / 100;
+  int y = distanceInFeet % 100;
+  PrintfLine(ROW4, PSTR("DISTANCE:  %2d.%02dft"), x, y);
   SetPixelLeds(distance);
 }
 
 void InitializeOneSecondTimerInterrupt()
 {
+  pinMode(HEARTBEAT_LED_PIN, OUTPUT);  // set up the Heartbeat LED
   cli();                               // Disable interrupts while setting up registers
   TCCR1A = 0;                          // Reset entire TCCR1A to 0
   TCCR1B = 0;                          // Reset entire TCCR1B to 0
@@ -71,6 +77,9 @@ ISR(TIMER1_COMPA_vect)
   if (--calculateSpeedOfSoundCounter <= 0)
   {
     float sos = CalculateSpeedOfSound();
+    Serial.print(F("Speed of Sound: "));
+    Serial.print(sos);
+    Serial.println(F("m/s"));
     // Since the Speed of Sound variable is being updated in this interrupt,
     // we protect the update in an atomic operation.
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE)

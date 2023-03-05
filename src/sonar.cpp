@@ -4,8 +4,8 @@
 #include "sonar.h"
 #include "main.h"
 
-#define TRIGGER_PIN 9 // D6
-#define ECHO_PIN 10   // D7
+#define TRIGGER_PIN 9 // D9
+#define ECHO_PIN 10   // D10
 
 #define NUMBER_OF_ULTRASONIC_SAMPLES 10 // the number of ultrasonic samples to take
 
@@ -24,7 +24,7 @@ unsigned long CalculateSonicDistance(float speedOfSound)
     // Prints the distance on the Serial Monitor
     Serial.print(F("Distance: "));
     Serial.print(distance);
-    Serial.println(F(" cm"));
+    Serial.println(F("cm"));
 
     return (unsigned long)(distance + 0.5);
 }

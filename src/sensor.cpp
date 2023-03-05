@@ -1,3 +1,5 @@
+
+
 #include <Arduino.h>
 #include <Adafruit_Sensor.h>
 #include <DHT.h>
@@ -6,17 +8,19 @@
 #include "sensor.h"
 #include "display.h"
 
-#define DHT_PIN 2     // D0
+#define DHT_PIN 5     // D5
 #define DHTTYPE DHT22 // DHT 22  (AM2302)
 
 #define SPEED_OF_SOUND 343.0 // in m/s
 
 // create an instance of the temperature/humidity sensor
+//DHT_Unified _sensor(DHT_PIN, DHTTYPE);
 DHT_Unified _sensor(DHT_PIN, DHTTYPE);
 
 void InitializeTemperatureAndHumidityDevice()
 {
     _sensor.begin(); // start the temperature/humidity sensor
+    delay(2000);
     Serial.println(F("DHT22 Unified Sensor Setup"));
     // Print temperature sensor details.
     sensor_t sensor;
@@ -81,8 +85,8 @@ float CalculateSpeedOfSound()
     }
     else
     {
-        temperature = event.temperature;
-        PrintfLine(0, PSTR("Temperature: %3d\337C"), temperature);
+        temperature = event.temperature + 0.5;
+        PrintfLine(ROW2, PSTR("TEMPERATURE: %3.1d\337F"), (int)((event.temperature * 9.0 / 5.0) + 32.5));
         Serial.print(F("Temperature: "));
         Serial.print(temperature);
         Serial.println(F("°C"));
@@ -96,8 +100,8 @@ float CalculateSpeedOfSound()
     }
     else
     {
-        humidity = event.relative_humidity;
-        PrintfLine(1, PSTR("Humidity: %3d%%"), humidity);
+        humidity = event.relative_humidity + 0.5;
+        PrintfLine(ROW3, PSTR("HUMIDITY:    %3.1d%%"), humidity);
         Serial.print(F("Humidity: "));
         Serial.print(humidity);
         Serial.println(F("%"));
