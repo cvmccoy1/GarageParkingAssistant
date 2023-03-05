@@ -24,7 +24,7 @@ unsigned long CalculateSonicDistance(float speedOfSound)
     // Prints the distance on the Serial Monitor
     Serial.print(F("Distance: "));
     Serial.print(distance);
-    Serial.println(F("cm"));
+    Serial.println(F(" cm"));
 
     return (unsigned long)(distance + 0.5);
 }

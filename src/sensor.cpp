@@ -58,8 +58,8 @@ void InitializeTemperatureAndHumidityDevice()
     Serial.print(sensor.resolution);
     Serial.println(F("%"));
     Serial.print(F("Minimum Delay: "));
-    Serial.println(sensor.min_delay);
-    Serial.println(F("ms"));
+    Serial.print((double(sensor.min_delay)/1000000.0));
+    Serial.println(F(" sec"));
     Serial.println(F("------------------------------------"));
 }
 
