@@ -10,7 +10,7 @@
 #define NUMBER_OF_ULTRASONIC_SAMPLES 10 // the number of ultrasonic samples to take
 
 // create an instance of the ultrasonic distance sensor
-NewPing _sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE);
+NewPing _sonar(TRIGGER_PIN, ECHO_PIN);
 
 unsigned long CalculateSonicDistance(float speedOfSound)
 {
@@ -22,9 +22,9 @@ unsigned long CalculateSonicDistance(float speedOfSound)
     distance = distance * 100;                            // meters to centimeters
 
     // Prints the distance on the Serial Monitor
-    Serial.print(F("Distance: "));
-    Serial.print(distance);
-    Serial.println(F("cm"));
+    //Serial.print(F("Distance: "));
+    //Serial.print(distance);
+    //Serial.println(F("cm"));
 
     return (unsigned long)(distance + 0.5);
 }

@@ -3,4 +3,4 @@
 extern float gSpeedOfSound;
 
 void InitializeTemperatureAndHumidityDevice();
-float CalculateSpeedOfSound();
+float CalculateSpeedOfSound(int *temperature, int *humidity);

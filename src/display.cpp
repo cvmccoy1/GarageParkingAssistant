@@ -32,10 +32,10 @@ void PrintLine(int row, const char *line)
     if (row < LCD_ROWS)
     {
         strncpy(_line[row], line, LCD_COLUMNS);
-        Serial.print(F("Serial Row "));
-        Serial.print(row);
-        Serial.print(F(": "));
-        Serial.println(&_line[row][0]);
+        //Serial.print(F("Serial Row "));
+        //Serial.print(row);
+        //Serial.print(F(": "));
+        //Serial.println(&_line[row][0]);
         display();
     }
     else
@@ -52,10 +52,10 @@ void PrintfLine(int row, const char *format, ...)
         va_start(args, format);
         vsnprintf_P(_line[row], LCD_COLUMNS + 1, format, args);
         va_end(args);
-        Serial.print(F("Serial Row"));
-        Serial.print(row);
-        Serial.print(F(": "));
-        Serial.println(&_line[row][0]);
+        //Serial.print(F("Serial Row"));
+        //Serial.print(row);
+        //Serial.print(F(": "));
+        //Serial.println(&_line[row][0]);
         display();
     }
     else

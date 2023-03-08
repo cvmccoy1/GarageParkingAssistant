@@ -2,7 +2,6 @@
 
 #include <FastLED.h>
 
-void InitializePixelLeds(unsigned long startDistance, unsigned long stopDistance);
-void SetPixelLeds(unsigned long distance);
+void InitializePixelLeds();
+void SetPixelLeds(unsigned long currentDistance, unsigned long startDistance, unsigned long stopDistance);
 void SetLedColors(int lastLed, CRGB color);
-void ResetDistances(unsigned long startDistance, unsigned long stopDistance);

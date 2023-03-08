@@ -5,48 +5,93 @@
 #include "sensor.h"
 #include "display.h"
 #include "pixels.h"
+#include "buttons.h"
+#include "storedData.h"
 
 // defining the pins
 #define HEARTBEAT_LED_PIN LED_BUILTIN // D10 (Pin 13)
 
-#define CALCULATE_SPEED_OF_SOUND_INTERVAL 5 // One Minute (60 Seconds)
+#define CALCULATE_SPEED_OF_SOUND_INTERVAL 60 // One Minute (60 Seconds)
+
+#define CELSIUS_TO_FAHRENHEIT(temperature) (int)(((double)temperature * 9.0 / 5.0) + 32.5)
 
 // defining variables
-volatile float _speedOfSound;
+static int temperature;
+static int humidity;
+volatile bool updateSpeedOfSound = true;
+float _speedOfSound;
+// The Stored Data Manager (EEPROM Settings)
+StoredDataManager *_storedDataManager = nullptr;
 
 // Forward referenced functions
 void InitializeOneSecondTimerInterrupt();
 
+void DisplayCurrentDistance(unsigned long distance)
+{
+  int distanceInFeet = (int)((double)distance / 0.3048 + 0.5);
+  int x = distanceInFeet / 100;
+  int y = distanceInFeet % 100;
+  PrintfLine(ROW1, PSTR("DISTANCE:    %2d.%02dft"), x, y);
+}
+
+void DisplayStartDistance(unsigned long distance)
+{
+  int distanceInFeet = (int)((double)distance / 0.3048 + 0.5);
+  int x = distanceInFeet / 100;
+  int y = distanceInFeet % 100;
+  PrintfLine(ROW2, PSTR("START DISTANCE:%2d.%02d"), x, y);
+}
+
+void DisplayStopDistance(unsigned long distance)
+{
+  int distanceInFeet = (int)((double)distance / 0.3048 + 0.5);
+  int x = distanceInFeet / 100;
+  int y = distanceInFeet % 100;
+  PrintfLine(ROW3, PSTR("STOP DISTANCE: %2d.%02d"), x, y);
+}
+
+void DisplayTemperatureAndHumidity(int temperature, int humidity)
+{
+  PrintfLine(ROW4, PSTR("TEMP:%3.1d\337F HUM:%3.1d%%"), CELSIUS_TO_FAHRENHEIT(temperature), humidity);
+}
+
 void setup()
 {
-  Serial.begin(9600);                 // start the serial communication
+  Serial.begin(9600); // start the serial communication
+  _storedDataManager = new StoredDataManager();
   InitializeDisplay();
   InitializeTemperatureAndHumidityDevice();
-  _speedOfSound = CalculateSpeedOfSound(); // Calculate the initial speedOfSound
-  InitializePixelLeds(MAX_DISTANCE, 115);
+  InitializePixelLeds();
   InitializeOneSecondTimerInterrupt();
-  PrintLine(ROW1, ">PARKING--ASSISTANT<");
+  InitializeButtons(_storedDataManager);
 }
 
 void loop()
 {
-  // Since the Speed Of Sound variable is updated during an interrupt,
-  // we use an atomic operation to get a local copy of the variable.
   float speedOfSound;
+  if (updateSpeedOfSound)
+  {
+    updateSpeedOfSound = false;
+    speedOfSound = CalculateSpeedOfSound(&temperature, &humidity);
+    DisplayTemperatureAndHumidity(temperature, humidity);
+  }
+  unsigned long currentDistance = CalculateSonicDistance(speedOfSound);
+  unsigned long startDistance;
+  unsigned long stopDistance;
   ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
   {
-    speedOfSound = _speedOfSound;
+    SetCurrentDistance(currentDistance);
+    startDistance = _storedDataManager->getStartDistance();
+    stopDistance = _storedDataManager->getStopDistance();
   }
-  unsigned long distance = CalculateSonicDistance(speedOfSound);
-  Serial.print(F("Distance: "));
-  Serial.print(distance);
-  Serial.println(F("cm"));
-  // Prints the distance on the Display
-  int distanceInFeet = (int)((double)distance / 0.3048 + 0.5);
-  int x = distanceInFeet / 100;
-  int y = distanceInFeet % 100;
-  PrintfLine(ROW4, PSTR("DISTANCE:  %2d.%02dft"), x, y);
-  SetPixelLeds(distance);
+  // Serial.print(F("Distance: "));
+  // Serial.print(distance);
+  // Serial.println(F("cm"));
+  //  Prints the distance on the Display
+  DisplayCurrentDistance(currentDistance);
+  DisplayStartDistance(startDistance);
+  DisplayStopDistance(stopDistance);
+  SetPixelLeds(currentDistance, startDistance, stopDistance);
 }
 
 void InitializeOneSecondTimerInterrupt()
@@ -76,16 +121,7 @@ ISR(TIMER1_COMPA_vect)
 
   if (--calculateSpeedOfSoundCounter <= 0)
   {
-    float sos = CalculateSpeedOfSound();
-    Serial.print(F("Speed of Sound: "));
-    Serial.print(sos);
-    Serial.println(F("m/s"));
-    // Since the Speed of Sound variable is being updated in this interrupt,
-    // we protect the update in an atomic operation.
-    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-    {
-      _speedOfSound = sos;
-    }
+    updateSpeedOfSound = true;
     calculateSpeedOfSoundCounter = CALCULATE_SPEED_OF_SOUND_INTERVAL;
   }
 }
