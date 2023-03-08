@@ -11,11 +11,17 @@ StoredDataManager::StoredDataManager()
 
 void StoredDataManager::Save()
 {
+    Serial.print("Save():");
     if (_isDirty)
     {
+        Serial.print(" startDistance=");
+        Serial.print(_storedData.startDistance);
+        Serial.print(" stopDistance=");
+        Serial.print(_storedData.stopDistance);
         EEPROM.put(EEPROM_ADDRESS, _storedData);
         _isDirty = false;
     }
+    Serial.println();
 }
 
 int StoredDataManager::getStartDistance() { return _storedData.startDistance; }
@@ -51,4 +57,8 @@ void StoredDataManager::validateStoredData()
     {
         _storedData.stopDistance = DEFAULT_STOP_DISTANCE;
     }
+    Serial.print("validateStoreData(): startDistance=");
+    Serial.print(_storedData.startDistance);
+    Serial.print(" stopDistance=");
+    Serial.println(_storedData.stopDistance);
 }

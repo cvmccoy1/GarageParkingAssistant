@@ -39,7 +39,7 @@ void DisplayStartDistance(unsigned long distance)
   int distanceInFeet = (int)((double)distance / 0.3048 + 0.5);
   int x = distanceInFeet / 100;
   int y = distanceInFeet % 100;
-  PrintfLine(ROW2, PSTR("START DISTANCE:%2d.%02d"), x, y);
+  PrintfLine(ROW2, PSTR("START DIST: %2d.%02d ft"), x, y);
 }
 
 void DisplayStopDistance(unsigned long distance)
@@ -47,12 +47,12 @@ void DisplayStopDistance(unsigned long distance)
   int distanceInFeet = (int)((double)distance / 0.3048 + 0.5);
   int x = distanceInFeet / 100;
   int y = distanceInFeet % 100;
-  PrintfLine(ROW3, PSTR("STOP DISTANCE: %2d.%02d"), x, y);
+  PrintfLine(ROW3, PSTR("STOP DIST:  %2d.%02d ft"), x, y);
 }
 
 void DisplayTemperatureAndHumidity(int temperature, int humidity)
 {
-  PrintfLine(ROW4, PSTR("TEMP:%3.1d\337F HUM:%3.1d%%"), CELSIUS_TO_FAHRENHEIT(temperature), humidity);
+  PrintfLine(ROW4, PSTR("TEMP:%3.1d\337F  HUM:%3.1d%%"), CELSIUS_TO_FAHRENHEIT(temperature), humidity);
 }
 
 void setup()
