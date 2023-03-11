@@ -1,5 +1,7 @@
 #pragma once
 
+#include "main.h"
+
 #define EEPROM_ADDRESS 0
 
 #define MAXIMUM_DISTANCE 500
@@ -8,8 +10,8 @@
 
 struct StoredData
 {
-    int startDistance;
-    int stopDistance;
+    int startDistance[NUMBER_OF_SONARS];
+    int stopDistance[NUMBER_OF_SONARS];
 };
 
 class StoredDataManager
@@ -18,11 +20,11 @@ public:
     StoredDataManager();
     void Save();
 
-    int getStartDistance();
-    int getStopDistance();
+    int getStartDistance(int index);
+    int getStopDistance(int index);
 
-    void setStartDistance(int distance);
-    void setStopDistance(int distance);
+    void setStartDistance(int index, int distance);
+    void setStopDistance(int index, int distance);
 
 private:
     StoredData _storedData;

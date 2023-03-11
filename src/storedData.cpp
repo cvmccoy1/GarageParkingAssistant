@@ -14,33 +14,29 @@ void StoredDataManager::Save()
     Serial.print("Save():");
     if (_isDirty)
     {
-        Serial.print(" startDistance=");
-        Serial.print(_storedData.startDistance);
-        Serial.print(" stopDistance=");
-        Serial.print(_storedData.stopDistance);
         EEPROM.put(EEPROM_ADDRESS, _storedData);
         _isDirty = false;
     }
     Serial.println();
 }
 
-int StoredDataManager::getStartDistance() { return _storedData.startDistance; }
-int StoredDataManager::getStopDistance()  { return _storedData.stopDistance; }
+int StoredDataManager::getStartDistance(int index) { return _storedData.startDistance[index]; }
+int StoredDataManager::getStopDistance(int index) { return _storedData.stopDistance[index]; }
 
-void StoredDataManager::setStartDistance(int distance)
+void StoredDataManager::setStartDistance(int index, int distance)
 {
-    if (_storedData.startDistance != distance)
+    if (_storedData.startDistance[index] != distance)
     {
-        _storedData.startDistance = distance;
+        _storedData.startDistance[index] = distance;
         _isDirty = true;
     }
 }
 
-void StoredDataManager::setStopDistance(int distance)
+void StoredDataManager::setStopDistance(int index, int distance)
 {
     if (_storedData.stopDistance != distance)
     {
-        _storedData.stopDistance = distance;
+        _storedData.stopDistance[index] = distance;
         _isDirty = true;
     }
 }
@@ -49,16 +45,15 @@ void StoredDataManager::setStopDistance(int distance)
 // They should only be invalid until the first write to the EEPROM.
 void StoredDataManager::validateStoredData()
 {
-    if (_storedData.startDistance < 0 || _storedData.startDistance > MAXIMUM_DISTANCE)
+    for (int index = 0; index < NUMBER_OF_SONARS; index++)
     {
-        _storedData.startDistance = DEFAULT_START_DISTANCE;
+        if (_storedData.startDistance[index] < 0 || _storedData.startDistance[index] > MAXIMUM_DISTANCE)
+        {
+            _storedData.startDistance[index] = DEFAULT_START_DISTANCE;
+        }
+        if (_storedData.stopDistance[index] < 0 || _storedData.stopDistance[index] >= _storedData.startDistance[index])
+        {
+            _storedData.stopDistance[index] = DEFAULT_STOP_DISTANCE;
+        }
     }
-    if (_storedData.stopDistance < 0 || _storedData.stopDistance >= _storedData.startDistance)
-    {
-        _storedData.stopDistance = DEFAULT_STOP_DISTANCE;
-    }
-    Serial.print("validateStoreData(): startDistance=");
-    Serial.print(_storedData.startDistance);
-    Serial.print(" stopDistance=");
-    Serial.println(_storedData.stopDistance);
 }

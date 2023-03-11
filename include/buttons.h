@@ -2,5 +2,5 @@
 
 #include "storedData.h"
 
-void InitializeButtons(StoredDataManager* storedData);
-void SetCurrentDistance(unsigned long distance);
+void InitializeButtons(StoredDataManager *storedData);
+void SetCurrentDistance(int index, unsigned long distance);

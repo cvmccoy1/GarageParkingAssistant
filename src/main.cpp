@@ -26,28 +26,49 @@ StoredDataManager *_storedDataManager = nullptr;
 // Forward referenced functions
 void InitializeOneSecondTimerInterrupt();
 
-void DisplayCurrentDistance(unsigned long distance)
+void DisplayCurrentDistance(unsigned long distance[])
 {
-  int distanceInFeet = (int)((double)distance / 0.3048 + 0.5);
-  int x = distanceInFeet / 100;
-  int y = distanceInFeet % 100;
-  PrintfLine(ROW1, PSTR("DISTANCE:    %2d.%02dft"), x, y);
+  int x[NUM_DIGITAL_PINS][2];
+  for (int index = 0; index < NUMBER_OF_SONARS; index++)
+  {
+    int distanceInFeet = (int)((double)distance[index] / 0.3048 + 0.5);
+    x[index][0] = distanceInFeet / 100;
+    x[index][1] = distanceInFeet % 100;
+  }
+  PrintfLine(ROW1, PSTR("D1:%2d.%01d"
+                        "  D2:%2d.%01d"
+                        ""),
+             x[0][0], x[0][1], x[1][0], x[1][1]);
 }
 
-void DisplayStartDistance(unsigned long distance)
+void DisplayStartDistance(unsigned long distance[])
 {
-  int distanceInFeet = (int)((double)distance / 0.3048 + 0.5);
-  int x = distanceInFeet / 100;
-  int y = distanceInFeet % 100;
-  PrintfLine(ROW2, PSTR("START DIST: %2d.%02d ft"), x, y);
+  int x[NUM_DIGITAL_PINS][2];
+  for (int index = 0; index < NUMBER_OF_SONARS; index++)
+  {
+    int distanceInFeet = (int)((double)(distance[index]) / 0.3048 + 0.5);
+    x[index][0] = distanceInFeet / 100;
+    x[index][1] = distanceInFeet % 100;
+  }
+  PrintfLine(ROW1, PSTR("S1:%2d.%01d"
+                        "  S2:%2d.%01d"
+                        ""),
+             x[0][0], x[0][1], x[1][0], x[1][1]);
 }
 
-void DisplayStopDistance(unsigned long distance)
+void DisplayStopDistance(unsigned long distance[])
 {
-  int distanceInFeet = (int)((double)distance / 0.3048 + 0.5);
-  int x = distanceInFeet / 100;
-  int y = distanceInFeet % 100;
-  PrintfLine(ROW3, PSTR("STOP DIST:  %2d.%02d ft"), x, y);
+  int x[NUM_DIGITAL_PINS][2];
+  for (int index = 0; index < NUMBER_OF_SONARS; index++)
+  {
+    int distanceInFeet = (int)((double)distance[index] / 0.3048 + 0.5);
+    x[index][0] = distanceInFeet / 100;
+    x[index][1] = distanceInFeet % 100;
+  }
+  PrintfLine(ROW1, PSTR("S1:%2d.%01d"
+                        "  S2:%2d.%01d"
+                        ""),
+             x[0][0], x[0][1], x[1][0], x[1][1]);
 }
 
 void DisplayTemperatureAndHumidity(int temperature, int humidity)
@@ -60,6 +81,7 @@ void setup()
   Serial.begin(9600); // start the serial communication
   _storedDataManager = new StoredDataManager();
   InitializeDisplay();
+  InitializeSonarDevice();
   InitializeTemperatureAndHumidityDevice();
   InitializePixelLeds();
   InitializeOneSecondTimerInterrupt();
@@ -75,18 +97,23 @@ void loop()
     speedOfSound = CalculateSpeedOfSound(&temperature, &humidity);
     DisplayTemperatureAndHumidity(temperature, humidity);
   }
-  unsigned long currentDistance = CalculateSonicDistance(speedOfSound);
-  unsigned long startDistance;
-  unsigned long stopDistance;
-  ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+  delay(200);
+  unsigned long currentDistance[NUMBER_OF_SONARS];
+  unsigned long startDistance[NUMBER_OF_SONARS];
+  unsigned long stopDistance[NUMBER_OF_SONARS];
+  for (int index = 0; index < NUMBER_OF_SONARS; index++)
   {
-    SetCurrentDistance(currentDistance);
-    startDistance = _storedDataManager->getStartDistance();
-    stopDistance = _storedDataManager->getStopDistance();
+    currentDistance[index] = CalculateSonicDistance(index, speedOfSound);
+
+    SetCurrentDistance(index, currentDistance[index]);
+    startDistance[index] = _storedDataManager->getStartDistance(index);
+    stopDistance[index] = _storedDataManager->getStopDistance(index);
+
+    Serial.print(F("Distance"));
+    Serial.print(index);
+    Serial.print(currentDistance[index]);
+    Serial.println(F("cm"));
   }
-  // Serial.print(F("Distance: "));
-  // Serial.print(distance);
-  // Serial.println(F("cm"));
   //  Prints the distance on the Display
   DisplayCurrentDistance(currentDistance);
   DisplayStartDistance(startDistance);
