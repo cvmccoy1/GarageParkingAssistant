@@ -102,8 +102,8 @@ float CalculateSpeedOfSound(int *temperature, int *humidity)
     if (!isnan(*temperature) && !isnan(*humidity))
         speedOfSound = SPEED_OF_SOUND_CALCULATED(*temperature, *humidity);
 
-    // Serial.print(F("Speed of Sound: "));
-    // Serial.print(speedOfSound);
-    // Serial.println(F("m/s"));
+    Serial.print(F("Speed of Sound: "));
+    Serial.print(speedOfSound);
+    Serial.println(F("m/s"));
     return speedOfSound;
 }

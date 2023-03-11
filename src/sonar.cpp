@@ -22,17 +22,25 @@ unsigned long CalculateSonicDistance(int index, float speedOfSound)
 {
     // The sensor is triggered by a HIGH pulse of 10 or more microseconds.
     // Give a short LOW pulse beforehand to ensure a clean HIGH pulse:
-    digitalWrite(TRIGGER1_PIN + index, LOW);
+    int triggerPin = TRIGGER1_PIN + (index * NUMBER_OF_SONARS);
+    int echoPin = ECHO1_PIN + (index * NUMBER_OF_SONARS);
+    digitalWrite(triggerPin, LOW);
     delayMicroseconds(5);
-    digitalWrite(TRIGGER1_PIN + index, HIGH);
+    digitalWrite(triggerPin, HIGH);
     delayMicroseconds(10);
-    digitalWrite(TRIGGER1_PIN + index, LOW);
+    digitalWrite(triggerPin, LOW);
 
     // Read the signal from the sensor: a HIGH pulse whose
     // duration is the time (in microseconds) from the sending
     // of the ping to the reception of its echo off of an object.
-    unsigned long duration = pulseIn(ECHO1_PIN, HIGH);
-    return ((speedOfSound * duration * 10000.0) / 2.0 + 0.5); // Divide by 2 because we are measuring the duration the sound wave needs to travel to the object and bounce back
+    unsigned long duration = pulseIn(echoPin, HIGH);
+    Serial.print("Duration");
+    Serial.print(index);
+    Serial.print(": ");
+    Serial.println(duration);
+
+    // SpeedOfSound (m/s) * duration (us) / 1,000,000 (us/s) * 100 (cm/m) / 2 (number of trips--to and back) + 0.5 (to round up)
+    return ((speedOfSound * duration / 20000) + 0.5); // in centimeters
 }
 
 /*
