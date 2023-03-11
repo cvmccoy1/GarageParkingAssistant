@@ -35,7 +35,7 @@ void DisplayCurrentDistance(unsigned long distance[])
     x[index][0] = distanceInFeet / 100;
     x[index][1] = distanceInFeet % 100;
   }
-  PrintfLine(ROW1, PSTR("D1:%2.2d.%02.2d'  D2:%2.2d.%02.2d'"),  x[0][0], x[0][1], x[1][0], x[1][1]);
+  PrintfLine(ROW1, PSTR("D1:%2.1d.%02.2d'  D2:%2.1d.%02.2d'"),  x[0][0], x[0][1], x[1][0], x[1][1]);
 }
 
 void DisplayStartDistance(unsigned long distance[])
@@ -47,7 +47,7 @@ void DisplayStartDistance(unsigned long distance[])
     x[index][0] = distanceInFeet / 100;
     x[index][1] = distanceInFeet % 100;
   }
-  PrintfLine(ROW2, PSTR("S1:%2.2d.%02.2d'  S2:%2.2d.%02.2d'"), x[0][0], x[0][1], x[1][0], x[1][1]);
+  PrintfLine(ROW2, PSTR("S1:%2.1d.%02.2d'  S2:%2.1d.%02.2d'"), x[0][0], x[0][1], x[1][0], x[1][1]);
 }
 
 void DisplayStopDistance(unsigned long distance[])
@@ -59,12 +59,12 @@ void DisplayStopDistance(unsigned long distance[])
     x[index][0] = distanceInFeet / 100;
     x[index][1] = distanceInFeet % 100;
   }
-  PrintfLine(ROW3, PSTR("E1:%2.2d.%02.2d'  E2:%2.2d.%02.2d'"), x[0][0], x[0][1], x[1][0], x[1][1]);
+  PrintfLine(ROW3, PSTR("E1:%2.1d.%02.2d'  E2:%2.1d.%02.2d'"), x[0][0], x[0][1], x[1][0], x[1][1]);
 }
 
 void DisplayTemperatureAndHumidity(int temperature, int humidity)
 {
-  PrintfLine(ROW4, PSTR("TEMP:%3.1d\337F  HUM:%3.1d%%"), CELSIUS_TO_FAHRENHEIT(temperature), humidity);
+  PrintfLine(ROW4, PSTR("TEMP:%3.1d\337   HUM:%3.1d%%"), CELSIUS_TO_FAHRENHEIT(temperature), humidity);
 }
 
 void setup()
