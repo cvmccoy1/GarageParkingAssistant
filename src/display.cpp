@@ -27,25 +27,41 @@ void InitializeDisplay()
     _lcd.backlight(); // open the backlight
 }
 
-void PrintLine(int lineNumber, const char *line)
+void PrintLine(int row, const char *line)
 {
-    if (lineNumber < LCD_ROWS)
+    if (row < LCD_ROWS)
     {
-        strncpy(_line[lineNumber], line, LCD_COLUMNS);
+        strncpy(_line[row], line, LCD_COLUMNS);
+        //Serial.print(F("Serial Row "));
+        //Serial.print(row);
+        //Serial.print(F(": "));
+        //Serial.println(&_line[row][0]);
         display();
     }
     else
     {
-        Serial.println(F("PrintLine() Error: lineNumber out of range!"));
+        Serial.println(F("PrintLine() Error: row out of range!"));
     }
 }
 
-void PrintfLine(int lineNumber, const char *format, ...)
+void PrintfLine(int row, const char *format, ...)
 {
-    va_list args;
-    va_start(args, format);
-    snprintf_P(_line[lineNumber], LCD_COLUMNS + 1, format, args);
-    display();
+    if (row < LCD_ROWS)
+    {
+        va_list args;
+        va_start(args, format);
+        vsnprintf_P(_line[row], LCD_COLUMNS + 1, format, args);
+        va_end(args);
+        //Serial.print(F("Serial Row"));
+        //Serial.print(row);
+        //Serial.print(F(": "));
+        //Serial.println(&_line[row][0]);
+        display();
+    }
+    else
+    {
+        Serial.println(F("PrintfLine() Error: row out of range!"));
+    }
 }
 
 void display()
@@ -58,9 +74,15 @@ void display()
 
 void updateDisplayRow(int row)
 {
+    bool isEnd = false;
     for (int column = 0; column < LCD_COLUMNS; column++)
     {
         char displayChar = _line[row][column];
+        if (displayChar == 0 || isEnd)
+        {
+            displayChar = ' ';
+            isEnd = true;
+        }
         if (displayChar != _line_copy[row][column])
         {
             _line_copy[row][column] = displayChar;

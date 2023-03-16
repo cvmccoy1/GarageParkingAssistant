@@ -1,3 +1,5 @@
+
+
 #include <Arduino.h>
 #include <Adafruit_Sensor.h>
 #include <DHT.h>
@@ -6,17 +8,20 @@
 #include "sensor.h"
 #include "display.h"
 
-#define DHT_PIN 2     // D0
+#define DHT_PIN 5     // D5
 #define DHTTYPE DHT22 // DHT 22  (AM2302)
 
-#define SPEED_OF_SOUND 343.0 // in m/s
+#define DEFAULT_SPEED_OF_SOUND 343.0 // in m/s
+#define SPEED_OF_SOUND_CALCULATED(temperature, humidity) (331.4 + (0.6 * temperature) + (0.0124 * humidity))
 
 // create an instance of the temperature/humidity sensor
+// DHT_Unified _sensor(DHT_PIN, DHTTYPE);
 DHT_Unified _sensor(DHT_PIN, DHTTYPE);
 
 void InitializeTemperatureAndHumidityDevice()
 {
     _sensor.begin(); // start the temperature/humidity sensor
+    delay(2000);
     Serial.println(F("DHT22 Unified Sensor Setup"));
     // Print temperature sensor details.
     sensor_t sensor;
@@ -58,54 +63,47 @@ void InitializeTemperatureAndHumidityDevice()
     Serial.print(sensor.resolution);
     Serial.println(F("%"));
     Serial.print(F("Minimum Delay: "));
-    Serial.print((double(sensor.min_delay)/1000000.0));
+    Serial.print((double(sensor.min_delay) / 1000000.0));
     Serial.println(F(" sec"));
     Serial.println(F("------------------------------------"));
 }
 
-float CalculateSpeedOfSound()
+float CalculateSpeedOfSound(int *temperature, int *humidity)
 {
-    // Get temperature event and print its value.
-    float speedOfSound = SPEED_OF_SOUND;
     sensors_event_t event;
-    static int temperature = 0;
-    static int humidity = 0;
-
-    bool isDhtWorking = true;
-
+    // Get temperature event and retrieve its value.
     _sensor.temperature().getEvent(&event);
     if (isnan(event.temperature))
     {
         Serial.println(F("Error reading temperature!"));
-        isDhtWorking = false;
     }
     else
     {
-        temperature = event.temperature;
-        PrintfLine(0, PSTR("Temperature: %3d\337C"), temperature);
+        *temperature = event.temperature + 0.5;
         Serial.print(F("Temperature: "));
-        Serial.print(temperature);
+        Serial.print(*temperature);
         Serial.println(F("°C"));
     }
-    // Get humidity event and print its value.
+    // Get humidity event and retrieve its value.
     _sensor.humidity().getEvent(&event);
     if (isnan(event.relative_humidity))
     {
         Serial.println(F("Error reading humidity!"));
-        isDhtWorking = false;
     }
     else
     {
-        humidity = event.relative_humidity;
-        PrintfLine(1, PSTR("Humidity: %3d%%"), humidity);
+        *humidity = event.relative_humidity + 0.5;
         Serial.print(F("Humidity: "));
-        Serial.print(humidity);
+        Serial.print(*humidity);
         Serial.println(F("%"));
     }
+    float speedOfSound = DEFAULT_SPEED_OF_SOUND;
     // Calculate speed of sound in m/s
-    if (isDhtWorking)
-    {
-        speedOfSound = 331.4 + (0.6 * temperature) + (0.0124 * humidity);
-    }
+    if (!isnan(*temperature) && !isnan(*humidity))
+        speedOfSound = SPEED_OF_SOUND_CALCULATED(*temperature, *humidity);
+
+    Serial.print(F("Speed of Sound: "));
+    Serial.print(speedOfSound);
+    Serial.println(F("m/s"));
     return speedOfSound;
 }
