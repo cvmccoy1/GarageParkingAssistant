@@ -26,42 +26,39 @@ float _speedOfSound;
 StoredDataManager *_storedDataManager = nullptr;
 
 // Forward referenced functions
-void InitializeOneSecondTimerInterrupt();
+void Initialize4HzTimerInterrupt();
 
 void DisplayCurrentDistance(unsigned long distance[])
 {
-  int x[NUM_DIGITAL_PINS][2];
+  char szF[NUMBER_OF_SONARS][6];
   for (int index = 0; index < NUMBER_OF_SONARS; index++)
   {
-    int distanceInFeet = (int)((double)distance[index] / 0.3048 + 0.5);
-    x[index][0] = distanceInFeet / 100;
-    x[index][1] = distanceInFeet % 100;
+    double distanceInFeet = (double)(distance[index]) / 30.48;
+    dtostrf(distanceInFeet, 4, 2, szF[index]);
   }
-  PrintfLine(ROW1, PSTR("D1:%2.1d.%02.2d'  D2:%2.1d.%02.2d'"),  x[0][0], x[0][1], x[1][0], x[1][1]);
+  PrintfLine(ROW1, PSTR("D1:%s'  D2:%s'"), szF[0], szF[1]);
 }
 
 void DisplayStartDistance(unsigned long distance[])
 {
-  int x[NUM_DIGITAL_PINS][2];
+  char szF[NUMBER_OF_SONARS][6];
   for (int index = 0; index < NUMBER_OF_SONARS; index++)
   {
-    int distanceInFeet = (int)((double)(distance[index]) / 0.3048 + 0.5);
-    x[index][0] = distanceInFeet / 100;
-    x[index][1] = distanceInFeet % 100;
+    double distanceInFeet = (double)(distance[index]) / 30.48;
+    dtostrf(distanceInFeet, 4, 2, szF[index]);
   }
-  PrintfLine(ROW2, PSTR("S1:%2.1d.%02.2d'  S2:%2.1d.%02.2d'"), x[0][0], x[0][1], x[1][0], x[1][1]);
+  PrintfLine(ROW2, PSTR("S1:%s'  S2:%s'"), szF[0], szF[1]);
 }
 
 void DisplayStopDistance(unsigned long distance[])
 {
-  int x[NUM_DIGITAL_PINS][2];
+  char szF[NUMBER_OF_SONARS][6];
   for (int index = 0; index < NUMBER_OF_SONARS; index++)
   {
-    int distanceInFeet = (int)((double)distance[index] / 0.3048 + 0.5);
-    x[index][0] = distanceInFeet / 100;
-    x[index][1] = distanceInFeet % 100;
+    double distanceInFeet = (double)(distance[index]) / 30.48;
+    dtostrf(distanceInFeet, 4, 2, szF[index]);
   }
-  PrintfLine(ROW3, PSTR("E1:%2.1d.%02.2d'  E2:%2.1d.%02.2d'"), x[0][0], x[0][1], x[1][0], x[1][1]);
+  PrintfLine(ROW2, PSTR("E1:%s'  E2:%s'"), szF[0], szF[1]);
 }
 
 void DisplayTemperatureAndHumidity(int temperature, int humidity)
@@ -77,7 +74,7 @@ void setup()
   InitializeSonarDevice();
   InitializeTemperatureAndHumidityDevice();
   InitializePixelLeds();
-  InitializeOneSecondTimerInterrupt();
+  Initialize4HzTimerInterrupt();
   InitializeButtons(_storedDataManager);
 }
 
@@ -117,7 +114,7 @@ void loop()
   }
 }
 
-void InitializeOneSecondTimerInterrupt()
+void Initialize4HzTimerInterrupt()
 {
   pinMode(HEARTBEAT_LED_PIN, OUTPUT);  // set up the Heartbeat LED
   cli();                               // Disable interrupts while setting up registers
@@ -132,7 +129,7 @@ void InitializeOneSecondTimerInterrupt()
   sei();         // Enable back the interrupts
 }
 
-// One Second Timer Interrupt Service Routine (ISR)
+// 4Hz Second Timer Interrupt Service Routine (ISR)
 ISR(TIMER1_COMPA_vect)
 {
   // Blink heartbeat LED every interrupt
