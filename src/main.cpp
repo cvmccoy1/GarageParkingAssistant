@@ -58,7 +58,7 @@ void DisplayStopDistance(unsigned long distance[])
     double distanceInFeet = (double)(distance[index]) / 30.48;
     dtostrf(distanceInFeet, 4, 2, szF[index]);
   }
-  PrintfLine(ROW2, PSTR("E1:%s'  E2:%s'"), szF[0], szF[1]);
+  PrintfLine(ROW3, PSTR("E1:%s'  E2:%s'"), szF[0], szF[1]);
 }
 
 void DisplayTemperatureAndHumidity(int temperature, int humidity)
