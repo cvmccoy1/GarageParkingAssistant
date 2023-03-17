@@ -11,7 +11,7 @@
 // defining the pins
 #define HEARTBEAT_LED_PIN LED_BUILTIN // D10 (Pin 13)
 
-#define CALCULATE_HEARTBEAT_INTERVAL       1 * 4 // Second (1 Second * 4Hz)
+#define CALCULATE_HEARTBEAT_INTERVAL 1 * 4       // Second (1 Second * 4Hz)
 #define CALCULATE_SPEED_OF_SOUND_INTERVAL 60 * 4 // One Minute (60 Seconds * 4Hz)
 
 #define CELSIUS_TO_FAHRENHEIT(temperature) (int)(((double)temperature * 9.0 / 5.0) + 32.5)
@@ -28,37 +28,15 @@ StoredDataManager *_storedDataManager = nullptr;
 // Forward referenced functions
 void Initialize4HzTimerInterrupt();
 
-void DisplayCurrentDistance(unsigned long distance[])
+void DisplayDistance(int row, int unsigned long distance[], char header)
 {
   char szF[NUMBER_OF_SONARS][6];
   for (int index = 0; index < NUMBER_OF_SONARS; index++)
   {
     double distanceInFeet = (double)(distance[index]) / 30.48;
-    dtostrf(distanceInFeet, 4, 2, szF[index]);
+    dtostrf(distanceInFeet, 5, 2, szF[index]);
   }
-  PrintfLine(ROW1, PSTR("D1:%s'  D2:%s'"), szF[0], szF[1]);
-}
-
-void DisplayStartDistance(unsigned long distance[])
-{
-  char szF[NUMBER_OF_SONARS][6];
-  for (int index = 0; index < NUMBER_OF_SONARS; index++)
-  {
-    double distanceInFeet = (double)(distance[index]) / 30.48;
-    dtostrf(distanceInFeet, 4, 2, szF[index]);
-  }
-  PrintfLine(ROW2, PSTR("S1:%s'  S2:%s'"), szF[0], szF[1]);
-}
-
-void DisplayStopDistance(unsigned long distance[])
-{
-  char szF[NUMBER_OF_SONARS][6];
-  for (int index = 0; index < NUMBER_OF_SONARS; index++)
-  {
-    double distanceInFeet = (double)(distance[index]) / 30.48;
-    dtostrf(distanceInFeet, 4, 2, szF[index]);
-  }
-  PrintfLine(ROW3, PSTR("E1:%s'  E2:%s'"), szF[0], szF[1]);
+  PrintfLine(row, PSTR("%c1:%s'  %c2:%s'"), header, szF[0], header, szF[1]);
 }
 
 void DisplayTemperatureAndHumidity(int temperature, int humidity)
@@ -107,9 +85,9 @@ void loop()
       stopDistance[index] = _storedDataManager->getStopDistance(index);
     }
     //  Prints the distance on the Display
-    DisplayCurrentDistance(currentDistance);
-    DisplayStartDistance(startDistance);
-    DisplayStopDistance(stopDistance);
+    DisplayDistance(ROW1, currentDistance, 'D');
+    DisplayDistance(ROW2, startDistance, 'B');
+    DisplayDistance(ROW3, stopDistance, 'E');
     SetPixelLeds(currentDistance, startDistance, stopDistance);
   }
 }
@@ -126,7 +104,7 @@ void Initialize4HzTimerInterrupt()
   TIMSK1 |= (1 << OCIE1A);             // Enable compare match mode
   // Set Compare Match Register = clock frequency / prescaler / interrupt frequency - 1 (cause its zero based)
   OCR1A = 3906; // 16MHz / 1024 / 4Hz - 1 (must be <65536)
-  sei();         // Enable back the interrupts
+  sei();        // Enable back the interrupts
 }
 
 // 4Hz Second Timer Interrupt Service Routine (ISR)
