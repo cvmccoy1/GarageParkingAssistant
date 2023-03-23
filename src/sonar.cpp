@@ -4,10 +4,10 @@
 #include "sonar.h"
 #include "main.h"
 
-#define TRIGGER1_PIN 9  // D9
-#define ECHO1_PIN 10    // D10
-#define TRIGGER2_PIN 11 // D11
-#define ECHO2_PIN 12    // D12
+#define TRIGGER1_PIN 4 // D4
+#define ECHO1_PIN 5    // D5
+#define TRIGGER2_PIN 6 // D6
+#define ECHO2_PIN 7    // D7
 
 void InitializeSonarDevice()
 {
