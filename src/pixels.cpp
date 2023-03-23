@@ -4,8 +4,8 @@
 #include "main.h"
 #include "pixels.h"
 
-#define PIXEL_LEDS1_PIN 7 // D7
-#define PIXEL_LEDS2_PIN 8 // D8
+#define PIXEL_LEDS1_PIN A1
+#define PIXEL_LEDS2_PIN A2 
 
 #define NUMBER_OF_PIXEL_LEDS 15 // The number of LEDs
 #define OFF CRGB(0, 0, 0)
@@ -20,25 +20,37 @@ void SetLedColors(int index, int lastLed, CRGB color);
 void InitializePixelLeds()
 {
     FastLED.addLeds<WS2812, PIXEL_LEDS1_PIN, GRB>(_pixelLeds[0], NUMBER_OF_PIXEL_LEDS); // set up the LED strip1
-    SetLedColors(0, NUMBER_OF_PIXEL_LEDS, OFF);                                                // set all LEDS off
+    SetLedColors(0, NUMBER_OF_PIXEL_LEDS, OFF);                                         // set all LEDS off
     FastLED.addLeds<WS2812, PIXEL_LEDS2_PIN, GRB>(_pixelLeds[1], NUMBER_OF_PIXEL_LEDS); // set up the LED strip2
-    SetLedColors(1, NUMBER_OF_PIXEL_LEDS, OFF);  // set all LEDS off
+    SetLedColors(1, NUMBER_OF_PIXEL_LEDS, OFF);                                         // set all LEDS off
 }
 
 void SetPixelLeds(unsigned long currentDistance[], unsigned long startDistance[], unsigned long stopDistance[])
 {
     for (int index = 0; index < NUMBER_OF_SONARS; index++)
     {
+        Serial.print("SetPixelLeds: Strip ");
+        Serial.print(index);
+        Serial.print(", Current Distance = ");
+        Serial.print(currentDistance[index]);
+        Serial.print(", Start = ");
+        Serial.print(startDistance[index]);
+        Serial.print(", Stop = ");
+        Serial.println(stopDistance[index]);
         if (currentDistance[index] >= startDistance[index])
         {
             // Greater than start distance -- set all LEDS off
-            // Serial.println("Greater than start distance -- set all LEDS off");
+            Serial.print("Strip ");
+            Serial.print(index);
+            Serial.println(": Greater than start distance -- set all LEDS off");
             SetLedColors(index, NUMBER_OF_PIXEL_LEDS, OFF);
         }
-        if (currentDistance[index] <= stopDistance[index])
+        else if (currentDistance[index] <= stopDistance[index])
         {
             // Less than or equal to the stop distance -- set all LEDS to red
-            //Serial.println("Less than or equal to the stop distance -- set all LEDS to red");
+            Serial.print("Strip ");
+            Serial.print(index);
+            Serial.println(": Less than or equal to the stop distance -- set all LEDS to red");
             SetLedColors(index, NUMBER_OF_PIXEL_LEDS, RED);
         }
         else
@@ -50,8 +62,10 @@ void SetPixelLeds(unsigned long currentDistance[], unsigned long startDistance[]
             {
                 if (currentDistance[index] <= stopDistance[index] + (incrementalDistance * led))
                 {
-                    //Serial.print("The distance is somewhere between the start and stop values: ");
-                    //Serial.println(i);
+                    Serial.print("Strip ");
+                    Serial.print(index);
+                    Serial.print(": The distance is somewhere between the start and stop values: Last LED ");
+                    Serial.println(led);
                     SetLedColors(index, led, GREEN);
                     break;
                 }
@@ -62,21 +76,21 @@ void SetPixelLeds(unsigned long currentDistance[], unsigned long startDistance[]
 
 void SetLedColors(int index, int lastLed, CRGB color)
 {
-    //Serial.print("SetLedColors: ");
+    Serial.print("SetLedColors: ");
     // Set the specificed number of lEDs to the specified color
     for (int i = 0; i < lastLed; i++)
     {
         _pixelLeds[index][i] = color;
-        //Serial.print(color);
-        //Serial.print(" ");
+        Serial.print(color);
+        Serial.print(" ");
     }
     // Turn off the remaining LEDs, if any
     for (int i = lastLed; i < NUMBER_OF_PIXEL_LEDS; i++)
     {
         _pixelLeds[index][i] = OFF;
-        //Serial.print("Off ");
+        Serial.print("Off ");
     }
-    //Serial.println();
+    Serial.println();
     FastLED.show();
     delay(50);
 }

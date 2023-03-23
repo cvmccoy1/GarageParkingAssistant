@@ -8,7 +8,7 @@
 #include "sensor.h"
 #include "display.h"
 
-#define DHT_PIN 5     // D5
+#define DHT_PIN A3   // D5
 #define DHTTYPE DHT22 // DHT 22  (AM2302)
 
 #define DEFAULT_SPEED_OF_SOUND 343.0 // in m/s

@@ -34,7 +34,7 @@ void StoredDataManager::setStartDistance(int index, int distance)
 
 void StoredDataManager::setStopDistance(int index, int distance)
 {
-    if (_storedData.stopDistance != distance)
+    if (_storedData.stopDistance[index] != distance)
     {
         _storedData.stopDistance[index] = distance;
         _isDirty = true;

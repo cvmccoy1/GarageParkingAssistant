@@ -7,7 +7,7 @@
 
 #define START_DISTANCE_BUTTON 2 // D2
 #define STOP_DISTANCE_BUTTON 3  // D3
-#define DISTANCE_INDEX_SWITCH 4 // D4
+#define DISTANCE_INDEX_SWITCH A0 
 
 StoredDataManager *_localStoredDataManager = nullptr;
 volatile unsigned long _currentDistance[NUMBER_OF_SONARS];

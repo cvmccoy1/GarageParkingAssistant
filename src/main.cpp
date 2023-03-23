@@ -44,6 +44,8 @@ void DisplayTemperatureAndHumidity(int temperature, int humidity)
   PrintfLine(ROW4, PSTR("TEMP:%3.1d\337   HUM:%3.1d%%"), CELSIUS_TO_FAHRENHEIT(temperature), humidity);
 }
 
+void InitialTestDisplay();
+
 void setup()
 {
   Serial.begin(9600); // start the serial communication
@@ -54,6 +56,7 @@ void setup()
   InitializePixelLeds();
   Initialize4HzTimerInterrupt();
   InitializeButtons(_storedDataManager);
+  //InitialTestDisplay();
 }
 
 void loop()
