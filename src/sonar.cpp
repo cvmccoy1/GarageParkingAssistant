@@ -34,10 +34,10 @@ unsigned long CalculateSonicDistance(int index, float speedOfSound)
     // duration is the time (in microseconds) from the sending
     // of the ping to the reception of its echo off of an object.
     unsigned long duration = pulseIn(echoPin, HIGH);
-    Serial.print("Duration");
-    Serial.print(index);
-    Serial.print(": ");
-    Serial.println(duration);
+    //Serial.print("Duration");
+    //Serial.print(index);
+    //Serial.print(": ");
+    //Serial.println(duration);
 
     // SpeedOfSound (m/s) * duration (us) / 1,000,000 (us/s) * 100 (cm/m) / 2 (number of trips--to and back) + 0.5 (to round up)
     return ((speedOfSound * duration / 20000) + 0.5); // in centimeters

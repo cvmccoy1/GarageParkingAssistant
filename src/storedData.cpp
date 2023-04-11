@@ -11,13 +11,13 @@ StoredDataManager::StoredDataManager()
 
 void StoredDataManager::Save()
 {
-    Serial.print("Save():");
+    //Serial.print("Save():");
     if (_isDirty)
     {
         EEPROM.put(EEPROM_ADDRESS, _storedData);
         _isDirty = false;
     }
-    Serial.println();
+    //Serial.println();
 }
 
 int StoredDataManager::getStartDistance(int index) { return _storedData.startDistance[index]; }

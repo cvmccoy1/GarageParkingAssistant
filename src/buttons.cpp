@@ -40,10 +40,10 @@ void StartDistanceInterrupt()
             _localStoredDataManager->setStartDistance(index, distance);
             _localStoredDataManager->Save();
         }
-        Serial.print(">>>> Start Distance");
-        Serial.print(index);
-        Serial.print(": ");
-        Serial.println(distance);
+        //Serial.print(">>>> Start Distance");
+        //Serial.print(index);
+        //Serial.print(": ");
+        //Serial.println(distance);
     }
 }
 
@@ -59,10 +59,10 @@ void StopDistanceInterrupt()
             _localStoredDataManager->setStopDistance(index, distance);
             _localStoredDataManager->Save();
         }
-        Serial.print(">>>> Stop Distance");
-        Serial.print(index);
-        Serial.print(": ");
-        Serial.println(distance);
+        //Serial.print(">>>> Stop Distance");
+        //Serial.print(index);
+        //Serial.print(": ");
+        //Serial.println(distance);
     }
 }
 

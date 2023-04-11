@@ -1,18 +1,31 @@
 #include <Arduino.h>
 #include <Wire.h>
-#include <LiquidCrystal_I2C.h>
 #include <stdarg.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1351.h>
+#include <SPI.h>
 
 #include "display.h"
 
-// #define LCD_DATA_PIN 23   // SDA/A4/D18
-// #define LCD_CLOCK_PIN 24  // SCL/A5/D19
+// Screen dimensions
+#define SCREEN_WIDTH 128
+#define SCREEN_HEIGHT 128 // Change this to 96 for 1.27" OLED.
+#define FONT_WIDTH 6
+#define FONT_HEIGHT 8
+#define FONT_SCALE 1
+#define LCD_ROWS (int)(SCREEN_HEIGHT / FONT_HEIGHT)
+#define LCD_COLUMNS (int)(SCREEN_WIDTH / FONT_WIDTH)
 
-#define LCD_ROWS 4
-#define LCD_COLUMNS 20
+// These are the h/w pins for the OLED Display (for fastest operation)
+#define SCLK_PIN 13 // D13
+#define MOSI_PIN 11 // D11
+#define DC_PIN 8    // D8
+#define CS_PIN 10   // D10
+#define RST_PIN 12  // D12
 
-// create an instance of LCD display: address = 0x27 and configure for a 16 character and 2 line display
-LiquidCrystal_I2C _lcd(0x27, LCD_COLUMNS, LCD_ROWS);
+
+// Using H/W pins for faster operation
+Adafruit_SSD1351 tft = Adafruit_SSD1351(SCREEN_WIDTH, SCREEN_HEIGHT, &SPI, CS_PIN, DC_PIN, RST_PIN);
 
 char _line[LCD_ROWS][LCD_COLUMNS + 1];
 char _line_copy[LCD_ROWS][LCD_COLUMNS];
@@ -22,9 +35,9 @@ void updateDisplayRow(int row);
 
 void InitializeDisplay()
 {
-    _lcd.init();      // initialize the lcd
-    _lcd.clear();     // clear the lcd display
-    _lcd.backlight(); // open the backlight
+    tft.begin();
+    tft.fillScreen(BLACK);
+    tft.setTextSize(1);
 }
 
 void PrintLine(int row, const char *line)
@@ -32,15 +45,11 @@ void PrintLine(int row, const char *line)
     if (row < LCD_ROWS)
     {
         strncpy(_line[row], line, LCD_COLUMNS);
-        //Serial.print(F("Serial Row "));
-        //Serial.print(row);
-        //Serial.print(F(": "));
-        //Serial.println(&_line[row][0]);
         display();
     }
     else
     {
-        Serial.println(F("PrintLine() Error: row out of range!"));
+        //Serial.println(F("PrintLine() Error: row out of range!"));
     }
 }
 
@@ -52,15 +61,27 @@ void PrintfLine(int row, const char *format, ...)
         va_start(args, format);
         vsnprintf_P(_line[row], LCD_COLUMNS + 1, format, args);
         va_end(args);
-        //Serial.print(F("Serial Row"));
-        //Serial.print(row);
-        //Serial.print(F(": "));
-        //Serial.println(&_line[row][0]);
         display();
     }
     else
     {
-        Serial.println(F("PrintfLine() Error: row out of range!"));
+        //Serial.println(F("PrintfLine() Error: row out of range!"));
+    }
+}
+
+void PrintfLine(int row, uint16_t color, uint16_t bg, const char *format, ...)
+{
+    if (row < LCD_ROWS)
+    {
+        va_list args;
+        va_start(args, format);
+        vsnprintf_P(_line[row], LCD_COLUMNS + 1, format, args);
+        va_end(args);
+        display();
+    }
+    else
+    {
+        //Serial.println(F("PrintfLine() Error: row out of range!"));
     }
 }
 
@@ -86,8 +107,9 @@ void updateDisplayRow(int row)
         if (displayChar != _line_copy[row][column])
         {
             _line_copy[row][column] = displayChar;
-            _lcd.setCursor(column, row);
-            _lcd.write(displayChar);
+            int x = column * FONT_WIDTH;
+            int y = (row * FONT_HEIGHT) + (FONT_HEIGHT - 1);
+            tft.drawChar(x, y, displayChar, WHITE, BLACK, FONT_SCALE);
         }
     }
 }
